@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\daneil\\Desktop\\desisto\\WebAPIEFcore\\WebAPIEFcore\\WebAPIEFcore.csproj": {}
+    "C:\\Users\\daneil\\Source\\Repos\\hjkl\\WebAPIEFcore\\WebAPIEFcore.csproj": {}
   },
   "projects": {
-    "C:\\Users\\daneil\\Desktop\\desisto\\WebAPIEFcore\\WebAPIEFcore\\WebAPIEFcore.csproj": {
+    "C:\\Users\\daneil\\Source\\Repos\\hjkl\\WebAPIEFcore\\WebAPIEFcore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\daneil\\Desktop\\desisto\\WebAPIEFcore\\WebAPIEFcore\\WebAPIEFcore.csproj",
+        "projectUniqueName": "C:\\Users\\daneil\\Source\\Repos\\hjkl\\WebAPIEFcore\\WebAPIEFcore.csproj",
         "projectName": "WebAPIEFcore",
-        "projectPath": "C:\\Users\\daneil\\Desktop\\desisto\\WebAPIEFcore\\WebAPIEFcore\\WebAPIEFcore.csproj",
+        "projectPath": "C:\\Users\\daneil\\Source\\Repos\\hjkl\\WebAPIEFcore\\WebAPIEFcore.csproj",
         "packagesPath": "C:\\Users\\daneil\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\daneil\\Desktop\\desisto\\WebAPIEFcore\\WebAPIEFcore\\obj\\",
+        "outputPath": "C:\\Users\\daneil\\Source\\Repos\\hjkl\\WebAPIEFcore\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\daneil\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -39,6 +39,26 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite.Core": {
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.2.3, )"

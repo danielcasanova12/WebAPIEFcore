@@ -1,49 +1,53 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using WebAPIEFcore.Data;
 using WebAPIEFcore.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-//builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var products = new List<Product>
-{
-    new Product { ProductId = 1, Nome = "Banana", Preco = 4.6f, Quantidade = 7 },
-    new Product { ProductId = 2, Nome = "Pera", Preco = 4.6f, Quantidade = 7 },
-    new Product { ProductId = 3, Nome = "Maçã", Preco = 4.6f, Quantidade = 7 },
-    new Product { ProductId = 4, Nome = "Melão", Preco = 4.6f, Quantidade = 7 }
-};
+builder.Services.AddDbContext<AppDbContext>();
 
-builder.Services.AddSingleton(products);
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Products.API", Version = "v1" });
-});
+// Adicione o serviço PovoaBanco ao contêiner de injeção de dependência
+builder.Services.AddTransient<PovoaBanco>();
+
+// ...
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
+// ...
 app.UseSwagger();
 app.UseSwaggerUI();
-//}
 
-app.MapGet("/products", () =>
+using (var scope = app.Services.CreateScope())
 {
-    var productService = app.Services.GetRequiredService<List<Product>>();
-    return Results.Ok(productService);
+    var serviceProvider = scope.ServiceProvider;
+
+    var dbContext = serviceProvider.GetRequiredService<AppDbContext>();
+
+    // Check if there are any products in the database
+    if (!dbContext.Products.Any())
+    {
+        var povoaBanco = serviceProvider.GetRequiredService<PovoaBanco>();
+        povoaBanco.PopularBaseDeDados();
+    }
+}
+
+app.MapGet("/products", async (AppDbContext context) =>
+{
+    var products = await context.Products.ToListAsync();
+
+    return Results.Ok(products);
 });
 
-app.MapGet("/products/{id}", (int id, HttpRequest request) =>
+app.MapGet("/products/{id}", (int id, AppDbContext context) =>
 {
-    var productService = app.Services.GetRequiredService<List<Product>>();
-
-    var product = productService.FirstOrDefault(p => p.ProductId == id);
+    var product = context.Products.FirstOrDefault(p => p.ProductId == id);
 
     if (product == null)
     {
@@ -53,22 +57,22 @@ app.MapGet("/products/{id}", (int id, HttpRequest request) =>
     return Results.Ok(product);
 });
 
-app.MapPost("/products", (Product product) =>
+app.MapPost("/products", async (Product product, AppDbContext context) =>
 {
-    var productService = app.Services.GetRequiredService<List<Product>>();
+    var productService = context.Products;
 
-    product.ProductId = productService.Max(p => p.ProductId) + 1;
+    // You should validate the incoming product data here if necessary
 
+    // Add the product to the DbSet
     productService.Add(product);
+    await context.SaveChangesAsync();
 
     return Results.Created($"/products/{product.ProductId}", product);
 });
 
-app.MapPut("/products/{id}", (int id, Product product) =>
+app.MapPut("/products/{id}", async (int id, Product product, AppDbContext context) =>
 {
-    var productService = app.Services.GetRequiredService<List<Product>>();
-
-    var existingProduct = productService.FirstOrDefault(p => p.ProductId == id);
+    var existingProduct = await context.Products.FindAsync(id);
 
     if (existingProduct == null)
     {
@@ -79,24 +83,26 @@ app.MapPut("/products/{id}", (int id, Product product) =>
     existingProduct.Preco = product.Preco;
     existingProduct.Quantidade = product.Quantidade;
 
+    await context.SaveChangesAsync();
+
     return Results.NoContent();
 });
 
-app.MapDelete("/products/{id}", (int id) =>
+app.MapDelete("/products/{id}", async (int id, AppDbContext context) =>
 {
-    var productService = app.Services.GetRequiredService<List<Product>>();
+    var product = await context.Products.FindAsync(id);
 
-    var existingProduct = productService.FirstOrDefault(p => p.ProductId == id);
-
-    if (existingProduct == null)
+    if (product == null)
     {
         return Results.NotFound();
     }
 
-    productService.Remove(existingProduct);
+    context.Products.Remove(product);
+    await context.SaveChangesAsync();
 
     return Results.NoContent();
 });
+
 
 //app.UseHttpsRedirection();
 
